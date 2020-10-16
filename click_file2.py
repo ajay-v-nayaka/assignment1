@@ -2,6 +2,7 @@ import click
 import random
 import string
 import os
+import boto3
 
 def autogen(length):
     # Random string with the combination of lower and upper case
@@ -23,20 +24,34 @@ def main():
 @click.option("--generate-template-only","-t",type=bool)
 @click.option("--deploy","-d",type=bool)
 @click.option("--output","-o")
-def aws_tool(name,compute,region,generate_template_only,deploy,output):
+@click.argument("template_flie_location",nargs=1)
+@click.argument("key_file",nargs=1)
+def aws_tool(name,compute,region,generate_template_only,deploy,output,template_flie_location,key_file):
+    
     if(generate_template_only!=None and deploy!=None):
         click.echo("Use either genetare template only or deploy but both cannot be used simultaniously")
 
     else:
-        if(generate_template_only==None and deploy==True): 
-            os.system("aws cloudformation create-stack --stack-name {} --template-body file://instance.json --parameters ParameterKey=InstanceType,ParameterValue={} ".format(name,compute))
-            if(output!=None):
-                os.system("cp instance.json {}".format(output))
-        elif(generate_template_only==True and deploy==None): 
+        if(deploy==True): 
+            client = boto3.client("cloudformation")
+            client.create_stack( StackName=name,TemplateURL=template_flie_location,
+                    Parameters=[
+                                {
+                                    'ParameterKey': "KeyName",
+                                    'ParameterValue': key_file
+                                },
+                                {
+                                    'ParameterKey': "InstanceType",
+                                    'ParameterValue': compute 
+                                    },
+                                ])
+            
+            
+        else: 
             os.system("cat instance.json")
-            if(output!=None):
-                os.system("cp instance.json {}".format(output))
-
+            
+    if(output!=None):
+        os.system("cp instance.json {}".format(output))
 
 main.add_command(aws_tool)    
 
