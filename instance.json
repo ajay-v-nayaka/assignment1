@@ -59,7 +59,7 @@
       "Properties" : {
         "VpcId" : { "Ref" : "VPC" },
         "CidrBlock" : "192.168.2.0/24",
-        "AvailabilityZone" : "ap-southeast-2b",
+        "AvailabilityZone" : "",
         "Tags" : [
 
           {"Key" : "Network", "Value" : "SydneyPublicSubnet1" }
@@ -122,37 +122,6 @@
         "SecurityGroupIngress" : [ { "IpProtocol" : "tcp", "FromPort" : "22",  "ToPort" : "22",  "CidrIp" : "0.0.0.0/0"},{ "IpProtocol" : "tcp", "FromPort" : "80",  "ToPort" : "80",  "CidrIp" : "0.0.0.0/0"}, { "IpProtocol" : "icmp", "FromPort" : "8", "ToPort" : "-1", "CidrIp" : "0.0.0.0/0" } ]
       }
     },
-
-
-
-    "EC2Instance" : {
-      "Type" : "AWS::EC2::Instance",
-      "Properties" : {
-        "InstanceType" : { "Ref" : "InstanceType" },
-        "KeyName" : { "Ref" : "KeyName" },
-        "ImageId" : "ami-43874721",
-        "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
-             "#!/bin/bash \n",
-	     "# Make certain that cfn itself is up to date \n",
-             "yum update -y aws-cfn-bootstrap \n",
-             "yum install -y httpd \n",
-
-             "# Install the files and packages from the metadata\n",
-             "service httpd start \n",
-             "chkconfig httpd on \n",
- 	     "echo '<h1>Hello from Sydney 1 </h1>'>/var/www/html/index.html \n"
-		]]}},
-        "NetworkInterfaces" : [
-          { "DeviceIndex" : "0",
-            "AssociatePublicIpAddress" : "true",
-            "DeleteOnTermination" : "true",
-            "SubnetId" : { "Ref" : "PublicSubnet1" },
-            "GroupSet" : [ { "Ref" : "SecurityGroup" } ]
-}],
-  "Tags" : [{"Key" : "Name", "Value" : "SydneyWebServer1" }]
-      }
-    },
-
 
     "EC2Instance2" : {
       "Type" : "AWS::EC2::Instance",
